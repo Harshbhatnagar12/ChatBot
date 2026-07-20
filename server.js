@@ -6,6 +6,8 @@ const generateResponse = require('./src/service/ai.service');
 
 // socket = single user 
 // io = Pura Server  
+//on = event listner
+//emit = event fire karna 
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {  });
@@ -27,6 +29,7 @@ io.on('connection', (socket) => {
     console.log("Received AI message: ", data.prompt);
     const response = await generateResponse(data.prompt);
     console.log('AI Response:', response);
+    socket.emit('ai-message-response', { response });
  })
 
 })
