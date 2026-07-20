@@ -12,7 +12,12 @@ const generateResponse = require('./src/service/ai.service');
 // when event fire client side then server listen same viceversa
 
 const httpServer = createServer(app);
-const io = new Server(httpServer, {  });
+const io = new Server(httpServer, {
+    cors: {
+        origin: "http://localhost:5173",
+       
+    }
+  });
 
 const chatHistory = [
    
@@ -36,12 +41,21 @@ socket.on('ai-message', async (data) => {  // it will listen on the server side 
     console.log('AI- Message received:', data.prompt);
 
     chatHistory.push({
-        role: "model",
+        role: "user",
         parts: [{ text: data.prompt }]
     })
 
     const response = await generateResponse(chatHistory); // it will show the respone on the client side 
      console.log('AI Response:', response); 
+
+       chatHistory.push({
+            role: "model",
+            parts: [
+                {
+                    text: response
+                }
+            ]
+        });
 
 
      socket.emit("ai-message-response", response); // fire emit on server then data transfer to the client 
