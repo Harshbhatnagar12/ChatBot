@@ -9,8 +9,14 @@ const generateResponse = require('./src/service/ai.service');
 //on = event listner
 //emit = event fire karna 
 
+// when event fire client side then server listen same viceversa
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {  });
+
+const chatHistory = [
+   
+]
 
 // jab server sa yah connection kiya 
 // jayga tab yah event fire hoaga and callback chal jayga, So connection event ka based pa hoata hai  
@@ -25,12 +31,22 @@ io.on('connection', (socket) => {
     console.log(data);
  })
 
- socket.on('ai-message', async (data) => {
-    console.log("Received AI message: ", data.prompt);
-    const response = await generateResponse(data.prompt);
-    console.log('AI Response:', response);
-    socket.emit('ai-message-response', { response });
- })
+// AI-Message
+socket.on('ai-message', async (data) => {  // it will listen on the server side when client side fire the event
+    console.log('AI- Message received:', data.prompt);
+
+    chatHistory.push({
+        role: "model",
+        parts: [{ text: data.prompt }]
+    })
+
+    const response = await generateResponse(chatHistory); // it will show the respone on the client side 
+     console.log('AI Response:', response); 
+
+
+     socket.emit("ai-message-response", response); // fire emit on server then data transfer to the client 
+})
+
 
 })
 
